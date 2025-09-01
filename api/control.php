@@ -32,8 +32,8 @@ class control extends model
                     "name" => $_POST["name"],
                     "email" => $_POST['email'],
                     "address" => $_POST['address'],
-                    "mobile" => $_POST['mobile'], "
-                password" => md5($_POST['password']),
+                    "mobile" => $_POST['mobile'], 
+                    "password" => md5($_POST['password']),
                     "gender" => $_POST['gender'],
                     "profile_image" => $filename
                 );

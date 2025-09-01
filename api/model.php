@@ -59,6 +59,22 @@ class model
         return $run;
 
     }
+
+    //function for delete 
+    function delete($table,$where){
+        $col_arr = array_keys($where); 
+        $val_arr = array_values($where);
+
+        $del = "delete from where 1=1";
+        $i=0;
+        foreach($where as $w){
+            $del .=" and $col_arr[$i] ='$val_arr[$i]'";
+            $i++;
+        }
+
+        $run= $this->conn->query($del);
+        return $run;
+    }
 }
 
 $obj = new model;
