@@ -230,8 +230,53 @@ class control extends model
                     echo json_encode(["message" => "Category Not Update", "status" => false]);
                 }
                 break;
+            //------------------------------------------PRODUCT PAGE------------------------------------------
 
-            //collection page
+            case '/Admin/Add_product':
+                $image_names = [];
+              //  $uploadDir = 'gallery/products/'; // Directory to store uploaded images
+
+                if (!empty($_FILES['product_image']['name'][0])) {
+                    foreach ($_FILES['product_image']['name'] as $key => $value) {
+                        $file_name = time() . "_" . basename($_FILES['product_image']['name'][$key]);
+                        $target = "../gallery/products/" . $file_name;
+
+                        if (move_uploaded_file($_FILES['product_image']['tmp_name'][$key], $target)) {
+                            $image_names[] = $file_name;
+                        }
+                    }
+                }
+                
+
+                 $images = implode(",", $image_names); // comma separated store
+                $arr = array(
+                       "cate_id " => $_POST["cate_id"],
+                    "collection_id " => $_POST['collection_id'],
+                    "product_name" => $_POST["product_name"],
+                    "product_code" => $_POST['product_code'],
+                    "product_image" => $images,
+                    "product_decsp" => $_POST['product_decsp'],
+                    "price" => $_POST['price'],//gender
+                    "gender" => $_POST["gender"],
+                    "height" => $_POST["height"],//
+                    "width" => $_POST['width'],
+                    "product_wieght" => $_POST['product_wieght'],
+                    "metals_id " => $_POST["metals_id"],
+                    "diamonds_id " => $_POST["diamonds_id"],//
+                    "of_stones" => $_POST['of_stones'],
+                    "diamond_weight" => $_POST['diamond_weight'],
+                );
+                  $insert = $this->insert("product", $arr);
+                    if ($insert or die("Insert Query Failed")) {
+                        echo json_encode(array("message" => "Product Inserted Successfully", "status" => true));
+                    } else {
+                        echo json_encode(array("message" => "Product Not Inserted ", "status" => false));
+                    }
+                
+                break;
+
+
+            //------------------------------------------COLLECTION PAGE------------------------------------------
             case '/Admin/Add_collection':
                 $data = json_decode(file_get_contents("php://input"), true);
                 if (!$data) {
@@ -285,7 +330,7 @@ class control extends model
                 }
                 break;
 
-            //offer Add And Manage
+            //-----------------------------------offer Add And Manage----------------------------------------
 
             case '/Admin/Add_offer':
                 $data = json_decode(file_get_contents("php://input"), true);
@@ -294,14 +339,14 @@ class control extends model
                 }
 
                 $arr = array(
-                    "offer_title"       => $data['offer_title'],
+                    "offer_title" => $data['offer_title'],
                     "offer_description" => $data['offer_description'],
-                    "offer_code"        => $data['offer_code'],
-                    "discount_type"     => $data['discount_type'],
-                    "discount_value"    => $data['discount_value'],
-                    "start_date"        => $data['start_date'],
-                    "end_date"          => $data['end_date'],
-                    "created_at"        => date("Y-m-d H:i:s")
+                    "offer_code" => $data['offer_code'],
+                    "discount_type" => $data['discount_type'],
+                    "discount_value" => $data['discount_value'],
+                    "start_date" => $data['start_date'],
+                    "end_date" => $data['end_date'],
+                    "created_at" => date("Y-m-d H:i:s")
                 );
 
                 $off = $this->insert("offer", $arr);
@@ -343,13 +388,13 @@ class control extends model
                 $where = array("offer_id" => $id);
                 $data = json_decode(file_get_contents("php://input"), true);
                 $update = array(
-                    "offer_title"       => $data['offer_title'],
+                    "offer_title" => $data['offer_title'],
                     "offer_description" => $data['offer_description'],
-                    "offer_code"        => $data['offer_code'],
-                    "discount_type"     => $data['discount_type'],
-                    "discount_value"    => $data['discount_value'],
-                    "start_date"        => $data['start_date'],
-                    "end_date"          => $data['end_date']
+                    "offer_code" => $data['offer_code'],
+                    "discount_type" => $data['discount_type'],
+                    "discount_value" => $data['discount_value'],
+                    "start_date" => $data['start_date'],
+                    "end_date" => $data['end_date']
                 );
                 $res = $this->update("offer", $update, $where);
                 if ($res) {
@@ -367,10 +412,10 @@ class control extends model
                     die("JSON Not Recived" . file_get_contents("php://input"));
                 }
                 $arr = array(
-                    "metal_name"   => $data['metal_name'],
-                    "metal_type"   => $data['metal_type'],
+                    "metal_name" => $data['metal_name'],
+                    "metal_type" => $data['metal_type'],
                     "metal_weight" => $data['metal_weight'],
-                    "metal_price"  => $data['metal_price']
+                    "metal_price" => $data['metal_price']
                 );
                 $cat = $this->insert("metals", $arr);
                 if ($cat or die("Insert Query Failed")) {
@@ -411,10 +456,10 @@ class control extends model
                 $where = array("id" => $id);
                 $data = json_decode(file_get_contents("php://input"), true);
                 $update = array(
-                    "metal_name"   => $data['metal_name'],
-                    "metal_type"   => $data['metal_type'],
+                    "metal_name" => $data['metal_name'],
+                    "metal_type" => $data['metal_type'],
                     "metal_weight" => $data['metal_weight'],
-                    "metal_price"  => $data['metal_price']
+                    "metal_price" => $data['metal_price']
                 );
                 $res = $this->update("metals", $update, $where);
                 if ($res) {
@@ -462,7 +507,7 @@ class control extends model
                 $data = json_decode(file_get_contents("php://input"), true);
                 $update = array(
                     "diamonds_type" => $data['diamonds_type'],
-                    "diamond_price" => $data['diamond_price'],  
+                    "diamond_price" => $data['diamond_price'],
                     "diamond_shape" => $data['diamond_shape']
                 );
                 $res = $this->update("diamonds", $update, $where);
@@ -482,6 +527,38 @@ class control extends model
                     echo json_encode(["message" => "Metal Delete Successfully", "status" => true]);
                 } else {
                     echo json_encode(["message" => "Metal Not Delete", "status" => false]);
+                }
+                break;
+            //----------------- Add Product ------------------
+            case '/Admin/add_product':
+                $data = json_decode(file_get_contents("php://input"), true);
+                if (!$data) {
+                    die("JSON Not Received: " . file_get_contents("php://input"));
+                }
+
+                $arr = array(
+                    "cate_id" => $data['cate_id'],
+                    "collection_id" => $data['collection_id'],
+                    "product_name" => $data['product_name'],
+                    "product_code" => $data['product_code'],
+                    "product_image" => $data['product_image'],
+                    "product_decsp" => $data['product_decsp'],
+                    "price" => $data['price'],
+                    "gender" => $data['gender'],
+                    "height" => $data['height'],
+                    "width" => $data['width'],
+                    "product_weight" => $data['product_weight'],
+                    "metals_id" => $data['metals_id'],
+                    "diamonds_id" => $data['diamonds_id'],
+                    "of_stones" => $data['of_stones'],
+                    "product_weight" => $data['product_weight']
+                );
+
+                $res = $this->insert("product", $arr);
+                if ($res) {
+                    echo json_encode(["message" => "Product Created Successfully", "status" => true]);
+                } else {
+                    echo json_encode(["message" => "Product Not Created", "status" => false]);
                 }
                 break;
 
