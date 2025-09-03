@@ -99,6 +99,18 @@ class control extends model
 
                 break;
 
+            case '/View-Product':
+                $id = $_GET['id'];
+                $where = array("pro_id" => $id);
+                $res = $this->select_where("product", $where);
+                $chk = $res->num_rows;
+                if ($chk == 1) {
+                    $row = $res->fetch_assoc();
+                    echo json_encode(["message" => "Fetch Success", "data" => $row, "status" => true]);
+                } else {
+                    echo json_encode(["message" => "Not Fetch Success", "status" => false]);
+                }
+                break;
 
 
             //------------------Admin Side------------------------
@@ -289,7 +301,7 @@ class control extends model
 
                 break;
 
-            case '/Admin/View_product':
+            case '/Admin/Manage_product':
                 $res = $this->select("product");
                 //$count = count($res);
                 if (!empty($res)) {
@@ -298,17 +310,19 @@ class control extends model
                     echo json_encode(["message" => "No Record Found", "status" => false]);
                 }
 
-            break;
+                break;
+
+
+
 
             case '/Admin/Delete_product':
-                $id=$_GET['id'];
-                $where = array("pro_id"=>$id);
-                $res = $this->delete("product",$where);
-                if($res){
-                    echo json_encode(["message"=>"Product Delete Successfully","status"=>true]);
-                }
-                else{
-                    echo json_encode(["message"=>"Product Not Delete Successfully","status"=>false]);
+                $id = $_GET['id'];
+                $where = array("pro_id" => $id);
+                $res = $this->delete("product", $where);
+                if ($res) {
+                    echo json_encode(["message" => "Product Delete Successfully", "status" => true]);
+                } else {
+                    echo json_encode(["message" => "Product Not Delete Successfully", "status" => false]);
                 }
                 break;
 
@@ -343,7 +357,7 @@ class control extends model
 
             //---------------------- View All Collection ------------
 
-            case '/Admin/view_collection':
+            case '/Admin/Manage_collection':
                 $res = $this->select("collection");
                 $count = count($res);
                 if (!empty($res)) {
@@ -397,7 +411,7 @@ class control extends model
 
             //------------ View All Offer ------------
 
-            case '/Admin/view_offer':
+            case '/Admin/Manage_offer':
                 $res = $this->select("offer");
                 $count = count($res);
                 if (!empty($res)) {
@@ -464,7 +478,7 @@ class control extends model
 
             // ------------ View All Metal ------------
 
-            case '/Admin/view_metal':
+            case '/Admin/Manage_metal':
                 $res = $this->select("metals");
                 $count = count($res);
                 if (!empty($res)) {
@@ -505,7 +519,7 @@ class control extends model
                 }
                 break;
 
-            //---------------------- Diamonds Add And Manage -------
+            //---------------------- DIAMONDS ADD AND MANAGE ----------------------
 
             case '/Admin/Add_diamonds':
                 $data = json_decode(file_get_contents("php://input"), true);
@@ -525,9 +539,9 @@ class control extends model
                 }
 
                 break;
-            //---------------------- View All Diamonds ------------
+            //------------ View All Diamonds ------------
 
-            case '/Admin/view_diamonds':
+            case '/Admin/Manage_diamonds':
                 $res = $this->select("diamonds");
                 $count = count($res);
                 if (!empty($res)) {
@@ -565,37 +579,9 @@ class control extends model
                     echo json_encode(["message" => "Metal Not Delete", "status" => false]);
                 }
                 break;
-            //----------------- Add Product ------------------
-            case '/Admin/add_product':
-                $data = json_decode(file_get_contents("php://input"), true);
-                if (!$data) {
-                    die("JSON Not Received: " . file_get_contents("php://input"));
-                }
+            //--------------------------- ADD-TO-CART CASE'S ---------------------------
+            case 'Admin/Add-to-cart':
 
-                $arr = array(
-                    "cate_id" => $data['cate_id'],
-                    "collection_id" => $data['collection_id'],
-                    "product_name" => $data['product_name'],
-                    "product_code" => $data['product_code'],
-                    "product_image" => $data['product_image'],
-                    "product_decsp" => $data['product_decsp'],
-                    "price" => $data['price'],
-                    "gender" => $data['gender'],
-                    "height" => $data['height'],
-                    "width" => $data['width'],
-                    "product_weight" => $data['product_weight'],
-                    "metals_id" => $data['metals_id'],
-                    "diamonds_id" => $data['diamonds_id'],
-                    "of_stones" => $data['of_stones'],
-                    "product_weight" => $data['product_weight']
-                );
-
-                $res = $this->insert("product", $arr);
-                if ($res) {
-                    echo json_encode(["message" => "Product Created Successfully", "status" => true]);
-                } else {
-                    echo json_encode(["message" => "Product Not Created", "status" => false]);
-                }
                 break;
 
         }
