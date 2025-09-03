@@ -246,26 +246,14 @@ class control extends model
 
             case '/Admin/Add_product':
                 $image_names = [];
-                $category = $this->select("category");
-                $collection = $this->select("collection");
-                $metals = $this->select("metals");
-                $diamond = $this->select("diamonds");
-                if (!empty($category) && !empty($collection) && !empty($metals) && !empty($diamond)) {
-                    echo json_encode([
-                        "message" => "Record Fetched Successfully",
-                        "category" => $category,
-                        "collection" => $collection,
-                        "metals" => $metals,
-                        "diamond" => $diamond,
-                        "status" => true
-                    ]);
-                } else {
-                    echo json_encode(["message" => "Foreign Key Error", "status" => false]);
+                $uploadDir = '../gallery/products/';
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
                 }
                 if (!empty($_FILES['product_image']['name'][0])) {
                     foreach ($_FILES['product_image']['name'] as $key => $value) {
                         $file_name = time() . "_" . basename($_FILES['product_image']['name'][$key]);
-                        $target = "../gallery/products/" . $file_name;
+                        $target = $uploadDir . $file_name;
 
                         if (move_uploaded_file($_FILES['product_image']['tmp_name'][$key], $target)) {
                             $image_names[] = $file_name;
