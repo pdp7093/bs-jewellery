@@ -337,11 +337,11 @@ class control extends model
             case '/Admin/Manage_product':
                 $res = $this->simple_joins(
                     "product",
-                    "diamonds",
-                    "metals",
-                    "product.diamonds_id =diamonds.diamond_id"
+                    "category",
+                    "collection",
+                    "product.cate_id =category.cate_id"
                     ,
-                    "product.metals_id = metals.id"
+                    "product.collection_id = collection.collection_id"
 
                 );
 
@@ -363,14 +363,14 @@ class control extends model
                                 "width" => $row['width'],
                                 "product_wieght" => $row['product_wieght'],
                                 "of_stones" => $row['of_stones'],
-                                "total_diamond_weight" => $row['diamond_weight'],
+                                "total_diamond_weight" => $row['total_diamond_weight'],
 
                             ],
-                            "metal" => [                                
-                                "metal_name" => $row['metal_name'],                                
+                            "category" => [                                
+                                "category_name" => $row['category_name'],                                
                             ],
-                            "diamond" => [                        
-                                "diamond_type" => $row['diamonds_type'],
+                            "collection" => [                        
+                                "collection_name" => $row['collection_name'],
                             ]
                         ];
                     }
