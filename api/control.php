@@ -106,6 +106,7 @@ class control extends model
                 $chk = $res->num_rows;
                 if ($chk == 1) {
                     $row = $res->fetch_assoc();
+                    
                     echo json_encode(["message" => "Fetch Success", "data" => $row, "status" => true]);
                 } else {
                     echo json_encode(["message" => "Not Fetch Success", "status" => false]);
@@ -168,7 +169,7 @@ class control extends model
             case '/Admin/Delete_user':
                 $id = $_GET['cust_id'];
                 $where = array("cust_id" => $id);
-                $res = $this->delete("customer", $where);
+                $res = $this->delete("customers", $where);
                 if ($res) {
                     echo json_encode(["message" => "Customer Delete Successfully", "status" => true]);
                 } else {

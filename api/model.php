@@ -136,6 +136,16 @@ class model
         }
         return $arr;
     }
+    
+    //Function for 3 table join 
+    function joins_where($tbl1,$tbl2,$tbl3,$on1,$on2,$where){
+        $join="select * from $tbl1 join $tbl2 on $on1 join $tbl3 on $on2 where $where";
+        $run = $this->conn->query($join);
+        while($fetch = $run->fetch_assoc()){
+            $arr[] = $fetch;
+        }
+        return $arr;
+    }
 }
 
 $obj = new model;
