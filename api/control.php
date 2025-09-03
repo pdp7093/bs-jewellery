@@ -234,8 +234,22 @@ class control extends model
 
             case '/Admin/Add_product':
                 $image_names = [];
-              //  $uploadDir = 'gallery/products/'; // Directory to store uploaded images
-
+                $category = $this->select("category");
+                $collection = $this->select("collection");
+                $metals = $this->select("metals");
+                $diamond = $this->select("diamonds");
+                if (!empty($category) && !empty($collection) && !empty($metals) && !empty($diamond)) {
+                    echo json_encode([
+                        "message" => "Record Fetched Successfully",
+                        "category" => $category,
+                        "collection" => $collection,
+                        "metals" => $metals,
+                        "diamond" => $diamond,
+                        "status" => true
+                    ]);
+                } else {
+                    echo json_encode(["message" => "Foreign Key Error", "status" => false]);
+                }
                 if (!empty($_FILES['product_image']['name'][0])) {
                     foreach ($_FILES['product_image']['name'] as $key => $value) {
                         $file_name = time() . "_" . basename($_FILES['product_image']['name'][$key]);
@@ -246,11 +260,11 @@ class control extends model
                         }
                     }
                 }
-                
 
-                 $images = implode(",", $image_names); // comma separated store
+
+                $images = implode(",", $image_names); // comma separated store
                 $arr = array(
-                       "cate_id " => $_POST["cate_id"],
+                    "cate_id " => $_POST["cate_id"],
                     "collection_id " => $_POST['collection_id'],
                     "product_name" => $_POST["product_name"],
                     "product_code" => $_POST['product_code'],
@@ -266,15 +280,37 @@ class control extends model
                     "of_stones" => $_POST['of_stones'],
                     "diamond_weight" => $_POST['diamond_weight'],
                 );
-                  $insert = $this->insert("product", $arr);
-                    if ($insert or die("Insert Query Failed")) {
-                        echo json_encode(array("message" => "Product Inserted Successfully", "status" => true));
-                    } else {
-                        echo json_encode(array("message" => "Product Not Inserted ", "status" => false));
-                    }
-                
+                $insert = $this->insert("product", $arr);
+                if ($insert or die("Insert Query Failed")) {
+                    echo json_encode(array("message" => "Product Inserted Successfully", "status" => true));
+                } else {
+                    echo json_encode(array("message" => "Product Not Inserted ", "status" => false));
+                }
+
                 break;
 
+            case '/Admin/View_product':
+                $res = $this->select("product");
+                //$count = count($res);
+                if (!empty($res)) {
+                    echo json_encode(["data" => $res, "status" => true]);
+                } else {
+                    echo json_encode(["message" => "No Record Found", "status" => false]);
+                }
+
+            break;
+
+            case '/Admin/Delete_product':
+                $id=$_GET['id'];
+                $where = array("pro_id"=>$id);
+                $res = $this->delete("product",$where);
+                if($res){
+                    echo json_encode(["message"=>"Product Delete Successfully","status"=>true]);
+                }
+                else{
+                    echo json_encode(["message"=>"Product Not Delete Successfully","status"=>false]);
+                }
+                break;
 
             //------------------------------------------COLLECTION PAGE------------------------------------------
             case '/Admin/Add_collection':
@@ -330,7 +366,7 @@ class control extends model
                 }
                 break;
 
-            //-----------------------------------offer Add And Manage----------------------------------------
+            //----------------------------------- OFFER ADD AND MANAGE ----------------------------------------
 
             case '/Admin/Add_offer':
                 $data = json_decode(file_get_contents("php://input"), true);
@@ -359,7 +395,7 @@ class control extends model
                 break;
 
 
-            //---------------------- View All Offer ------------
+            //------------ View All Offer ------------
 
             case '/Admin/view_offer':
                 $res = $this->select("offer");
@@ -404,7 +440,7 @@ class control extends model
                 }
                 break;
 
-            //---------------------- Metal Add And Manage -------
+            //---------------------- METAL ADD AND MANAGE----------------------
 
             case '/Admin/Add_Metal':
                 $data = json_decode(file_get_contents("php://input"), true);
@@ -426,7 +462,7 @@ class control extends model
 
                 break;
 
-            //---------------------- View All Metal ------------
+            // ------------ View All Metal ------------
 
             case '/Admin/view_metal':
                 $res = $this->select("metals");
