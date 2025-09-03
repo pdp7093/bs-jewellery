@@ -102,12 +102,55 @@ class control extends model
             case '/View-Product':
                 $id = $_GET['id'];
                 $where = array("pro_id" => $id);
-                $res = $this->select_where("product", $where);
-                $chk = $res->num_rows;
-                if ($chk == 1) {
-                    $row = $res->fetch_assoc();
-                    
-                    echo json_encode(["message" => "Fetch Success", "data" => $row, "status" => true]);
+                $res = $this->joins_where(
+                    "product",
+                    "diamonds",
+                    "metals",
+                    "product.diamonds_id =diamonds.diamond_id"
+                    ,
+                    "product.metals_id = metals.id",
+                    $where
+                );
+
+                if ($res) {
+                    $data = [];
+
+                    foreach ($res as $row) {
+                        // $row = $res->fetch_assoc();
+                        $images = explode(",", $row['product_image']); // images as array
+
+                        $data[] = [
+                            "product" => [
+                                "pro_id" => $row['pro_id'],
+                                "product_name" => $row['product_name'],
+                                "product_code" => $row['product_code'],
+                                "product_decsp" => $row['product_decsp'],
+                                "product_image" => $images,
+                                "price" => $row['price'],
+                                "gender" => $row['gender'],
+                                "height" => $row['height'],
+                                "width" => $row['width'],
+                                "product_wieght" => $row['product_wieght'],
+                                "of_stones" => $row['of_stones'],
+                                "diamond_weight" => $row['diamond_weight'],
+
+                            ],
+                            "metal" => [
+                                "metal_id" => $row['id'],
+                                "metal_name" => $row['metal_name'],
+                                "metal_type" => $row['metal_type'],
+                                  "metal_weight" => $row['metal_weight'],
+                                "metal_price" => $row['metal_price']
+                            ],
+                            "diamond" => [
+                                "diamond_id" => $row['diamonds_id'],
+                                "diamond_type" => $row['diamonds_type'],
+                                "diamond_price" => $row['diamond_price'],
+                                "diamond_shape" => $row['diamond_shape']
+                            ]
+                        ];
+                    }
+                    echo json_encode(["message" => "Fetch Success", "data" => $data, "status" => true]);
                 } else {
                     echo json_encode(["message" => "Not Fetch Success", "status" => false]);
                 }
@@ -182,7 +225,7 @@ class control extends model
                 $data = json_decode(file_get_contents("php://input"), true);
                 $update = array("name" => $data['name'], "email" => $data['email'], "mobile_number" => $data['mobile_number']);
 
-                $res = $this->update("customers", $update, $data);
+                $res = $this->update("customers", $update, $where);
                 if ($res) {
                     echo json_encode(["message" => "User Data Update SuccessFully", "status" => true]);
                 } else {
@@ -297,6 +340,42 @@ class control extends model
                     echo json_encode(["data" => $res, "status" => true]);
                 } else {
                     echo json_encode(["message" => "No Record Found", "status" => false]);
+                }
+
+                break;
+            case '/Admin/Update_product':
+                $pro_id = array("pro_id" => $_GET['id']);
+                $image_names = [];
+                $uploadDir = '../gallery/products/';
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
+                }
+                if (!empty($_FILES['product_image']['name'][0])) {
+                    foreach ($_FILES['product_image']['name'] as $key => $value) {
+                        $file_name = time() . "_" . basename($_FILES['product_image']['name'][$key]);
+                        $target = $uploadDir . $file_name;
+
+                        if (move_uploaded_file($_FILES['product_image']['tmp_name'][$key], $target)) {
+                            $image_names[] = array_push($file_name);
+                        }
+                    }
+                }
+
+
+                $images = implode(",", $image_names); // comma separated store
+                $arr = array(
+
+                    "product_name" => $_POST["product_name"],
+                    "product_image" => $images,
+                    "product_decsp" => $_POST['product_decsp'],
+                    "price" => $_POST['price'],//gender
+                    "gender" => $_POST["gender"]
+                );
+                $update = $this->update("product", $arr, $pro_id);
+                if ($update or die("Insert Query Failed")) {
+                    echo json_encode(array("message" => "Product update Successfully", "status" => true));
+                } else {
+                    echo json_encode(array("message" => "Product Not update ", "status" => false));
                 }
 
                 break;
