@@ -137,6 +137,17 @@ class model
         return $arr;
     }
 
+    //Function for simple joins 3
+     function simple_joins($tbl1, $tbl2, $tbl3,$on1,$on2)
+    {
+        $sel = "select $tbl1.*,$tbl2.*,$tbl3.* from $tbl1 join $tbl2 on $on1 join $tbl3 on  $on2";
+        $run = $this->conn->query($sel);
+        while ($fetch = $run->fetch_assoc()) {
+            $arr[] = $fetch;
+        }
+        return $arr;
+    }
+
     //Function for 3 table join 
     function joins_where($tbl1, $tbl2, $tbl3, $on1, $on2, $where)
     {
