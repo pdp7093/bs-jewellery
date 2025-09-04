@@ -187,6 +187,28 @@ class model
         }
         return $arr;
     }
+
+    //    //Function for 5 tables 
+    // function join_more($tables, $joinConditions, $where)
+    // {
+    //     $mainTable = array_shift($tables);
+    //     $mainAlias = key($tables);
+    //     $sql = "SELECT * FROM {$mainTable} {$mainAlias} ";
+
+    //     $i = 0;
+    //     foreach ($joinConditions as $joinTable => $condition) {
+    //         $alias = array_keys($tables)[$i];
+    //         $sql .= "JOIN {$joinTable} {$alias} ON {$condition} ";
+    //         $i++;
+    //     }
+    //     $sql .= "WHERE $where ";
+    //     $run = $this->conn->query($sql);
+
+    //     while ($fetch = $run->fetch_assoc()) {
+    //         $arr[] = $fetch;
+    //     }
+    //     return $arr;
+    // }
 }
 
 $obj = new model;

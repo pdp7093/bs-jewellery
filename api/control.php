@@ -102,62 +102,24 @@ class control extends model
             case '/View-Product':
                 $id = $_GET['id'];
                 $where = array("pro_id" => $id);
-                $res = $this->joins_where(
-                    "product",
-                    "diamonds",
-                    "metals",
-                    "product.diamonds_id =diamonds.diamond_id"
-                    ,
-                    "product.metals_id = metals.id",
-                    $where
-                );
-
-                if ($res) {
-                    $data = [];
-
-                    foreach ($res as $row) {
-                        // $row = $res->fetch_assoc();
-                        $images = explode(",", $row['product_image']); // images as array
-
-                        $data[] = [
-                            "product" => [
-                                "pro_id" => $row['pro_id'],
-                                "product_name" => $row['product_name'],
-                                "product_code" => $row['product_code'],
-                                "product_decsp" => $row['product_decsp'],
-                                "product_image" => $images,
-                                "price" => $row['price'],
-                                "gender" => $row['gender'],
-                                "height" => $row['height'],
-                                "width" => $row['width'],
-                                "product_wieght" => $row['product_wieght'],
-                                "of_stones" => $row['of_stones'],
-                                "total_diamond_weight" => $row['diamond_weight'],
-
-                            ],
-                            "metal" => [
-                                "metal_id" => $row['id'],
-                                "metal_name" => $row['metal_name'],
-                                "metal_type" => $row['metal_type'],
-                                "metal_weight" => $row['metal_weight'],
-                                "metal_price" => $row['metal_price']
-                            ],
-                            "diamond" => [
-                                "diamond_id" => $row['diamonds_id'],
-                                "diamond_type" => $row['diamonds_type'],
-                                "diamond_weight" => $row['diamond_weight'],
-                                "diamond_price" => $row['diamond_price'],
-                                "diamond_shape" => $row['diamond_shape']
-                            ]
-                        ];
-                    }
-                    echo json_encode(["message" => "Fetch Success", "data" => $data, "status" => true]);
-                } else {
-                    echo json_encode(["message" => "Not Fetch Success", "status" => false]);
+                $pro= $this->select_where("product",$where);
+                $chk = $pro->num_rows;
+                if($chk==1){
+                    $row = $pro->fetch_assoc();
+                }
+                $product_size = $this->select("product_sizes");
+                $metal = $this->select("metals");
+                $diamond = $this->select("diamonds");
+                if($row && $metal && $diamond){
+                    echo json_encode(["message"=>"Data Fetch Success","product"=>$row,"metals"=>$metal,"diamond"=>$diamond,"product_size"=>$product_size,"status"=>true]);
+                }
+                else{
+                    echo json_encode(["message"=>"Error in Data Fetch","status"=>false]);
                 }
                 break;
 
-
+                case "/Add-to-cart":
+                break;
             //------------------Admin Side------------------------
 
             //Login Admin
