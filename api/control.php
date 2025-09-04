@@ -654,6 +654,30 @@ class control extends model
 
                 break;
 
+            case '/Admin/Delete_cart':
+                $id = $_GET['id'];
+                $where = array("id" => $id);
+                $res = $this->delete("addtocart", $where);
+                if ($res) {
+                    echo json_encode(["message" => "Cart Delete Successfully", "status" => true]);
+                } else {
+                    echo json_encode(["message" => "Cart Not Delete", "status" => false]);
+                }
+                break;
+
+            //--------------------------- ADD-TO-CART CASE'S ---------------------------
+        
+
+            case '/Admin/Delete_order':
+                $id = $_GET['id'];
+                $where = array("id" => $id);
+                $res = $this->delete("orders", $where);
+                if ($res) {
+                    echo json_encode(["message" => "Order Delete Successfully", "status" => true]);
+                } else {
+                    echo json_encode(["message" => "Order Not Delete", "status" => false]);
+                }
+                break;
             //--------------------------- PRODUCT SIZE CASE'S ---------------------------
             case '/Admin/Add_ProductSize':
                 $data = json_decode(file_get_contents("php://input"), true);
@@ -698,7 +722,7 @@ class control extends model
                 $id = $_GET['id'];
                 $where = array("id" => $id);
                 $data = json_decode(file_get_contents("php://input"), true);
-                 $arr = array(
+                $arr = array(
                     "product_type" => $data['product_type'],
                     "size_label" => $data['size_label'],
                     "diameter_mm" => $data['diameter_mm'],
