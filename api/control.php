@@ -735,6 +735,7 @@ class control extends model
                     echo json_encode(["message" => "Product Size Not Update", "status" => false]);
                 }
                 break;
+        
         }
     }
 }

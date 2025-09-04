@@ -5,3 +5,4 @@
 	RewriteCond %{REQUEST_FILENAME} !-d
 
 	RewriteRule ^(.*)$ control.php/$1 [L]
+	RewriteRule ^Size/(.*)$ productsize_control.php/$1 [L]
