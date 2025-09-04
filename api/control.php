@@ -102,23 +102,22 @@ class control extends model
             case '/View-Product':
                 $id = $_GET['id'];
                 $where = array("pro_id" => $id);
-                $pro= $this->select_where("product",$where);
+                $pro = $this->select_where("product", $where);
                 $chk = $pro->num_rows;
-                if($chk==1){
+                if ($chk == 1) {
                     $row = $pro->fetch_assoc();
                 }
                 $product_size = $this->select("product_sizes");
                 $metal = $this->select("metals");
                 $diamond = $this->select("diamonds");
-                if($row && $metal && $diamond){
-                    echo json_encode(["message"=>"Data Fetch Success","product"=>$row,"metals"=>$metal,"diamond"=>$diamond,"product_size"=>$product_size,"status"=>true]);
-                }
-                else{
-                    echo json_encode(["message"=>"Error in Data Fetch","status"=>false]);
+                if ($row && $metal && $diamond) {
+                    echo json_encode(["message" => "Data Fetch Success", "product" => $row, "metals" => $metal, "diamond" => $diamond, "product_size" => $product_size, "status" => true]);
+                } else {
+                    echo json_encode(["message" => "Error in Data Fetch", "status" => false]);
                 }
                 break;
 
-                case "/Add-to-cart":
+            case "/Add-to-cart":
                 break;
             //------------------Admin Side------------------------
 
@@ -284,8 +283,9 @@ class control extends model
                     "product_wieght" => $_POST['product_wieght'],
                     "metals_id " => $_POST["metals_id"],
                     "diamonds_id " => $_POST["diamonds_id"],//
+                    "product_size" => $_POST['product_size'],
                     "of_stones" => $_POST['of_stones'],
-                    "diamond_weight" => $_POST['diamond_weight'],
+                    "total_diamond_weight" => $_POST['diamond_weight'],
                 );
                 $insert = $this->insert("product", $arr);
                 if ($insert or die("Insert Query Failed")) {
@@ -309,9 +309,9 @@ class control extends model
 
                 if ($res) {
                     $data = [];
-                    
+
                     foreach ($res as $row) {
-                          $images = explode(",", $row['product_image']); // images as array
+                        $images = explode(",", $row['product_image']); // images as array
                         $data[] = [
                             "product" => [
                                 "pro_id" => $row['pro_id'],
@@ -328,17 +328,16 @@ class control extends model
                                 "total_diamond_weight" => $row['total_diamond_weight'],
 
                             ],
-                            "category" => [                                
-                                "category_name" => $row['category_name'],                                
+                            "category" => [
+                                "category_name" => $row['category_name'],
                             ],
-                            "collection" => [                        
+                            "collection" => [
                                 "collection_name" => $row['collection_name'],
                             ]
                         ];
                     }
-                      echo json_encode(["message" => "Fetch Success", "data" => $data, "status" => true]);
-                }
-                 else {
+                    echo json_encode(["message" => "Fetch Success", "data" => $data, "status" => true]);
+                } else {
                     echo json_encode(["message" => "No Record Found", "status" => false]);
                 }
 
@@ -651,10 +650,67 @@ class control extends model
                 }
                 break;
             //--------------------------- ADD-TO-CART CASE'S ---------------------------
-            case 'Admin/Add-to-cart':
+            case '/Admin/Add-to-cart':
 
                 break;
 
+            //--------------------------- PRODUCT SIZE CASE'S ---------------------------
+            case '/Admin/Add_ProductSize':
+                $data = json_decode(file_get_contents("php://input"), true);
+                if (!$data) {
+                    die("JSON Not Recived" . file_get_contents("php://input"));
+                }
+                $arr = array(
+                    "product_type" => $data['product_type'],
+                    "size_label" => $data['size_label'],
+                    "diameter_mm" => $data['diameter_mm'],
+                    "circumference_mm" => $data['circumference_mm']
+                );
+                $cat = $this->insert(" product_sizes", $arr);
+                if ($cat or die("Insert Query Failed")) {
+                    echo json_encode((["message" => "Product Size Created", "status" => true]));
+                } else {
+                    echo json_encode(["message" => "Product Size Not Created", "status" => false]);
+                }
+                break;
+
+            case '/Admin/Manage_ProductSize':
+                $res = $this->select("product_sizes");
+                $count = count($res);
+                if (!empty($res)) {
+                    echo json_encode(["data" => $res, "status" => true]);
+                } else {
+                    echo json_encode(["message" => "No Record Found", "status" => false]);
+                }
+                break;
+            case '/Admin/Delete_ProductSize':
+                $id = $_GET['id'];
+                $where = array("id" => $id);
+                $res = $this->delete("product_sizes", $where);
+                if ($res) {
+                    echo json_encode(["message" => "Product Size Delete Successfully", "status" => true]);
+                } else {
+                    echo json_encode(["message" => "Product Size Not Delete", "status" => false]);
+                }
+                break;
+
+            case '/Admin/Update_ProductSize':
+                $id = $_GET['id'];
+                $where = array("id" => $id);
+                $data = json_decode(file_get_contents("php://input"), true);
+                 $arr = array(
+                    "product_type" => $data['product_type'],
+                    "size_label" => $data['size_label'],
+                    "diameter_mm" => $data['diameter_mm'],
+                    "circumference_mm" => $data['circumference_mm']
+                );
+                $res = $this->update("product_sizes", $arr, $where);
+                if ($res) {
+                    echo json_encode(["message" => "Product Size Update Successfully", "status" => true]);
+                } else {
+                    echo json_encode(["message" => "Product Size Not Update", "status" => false]);
+                }
+                break;
         }
     }
 }
