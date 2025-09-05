@@ -99,6 +99,84 @@ class control extends model
 
                 break;
 
+            case '/view_category':
+                $res = $this->select("category");
+                $count = count($res);
+                if (!empty($res)) {
+                    echo json_encode(["data" => $res, "status" => true]);
+                } else {
+                    echo json_encode(["message" => "No Record Found", "status" => false]);
+                }
+                break;
+
+            case '/collection-category':
+                $id = array("category_collection.collection_id" => $_GET['id']);
+                $res = $this->joins_where(
+                    "category_collection",
+                    "category",
+                    "collection",
+                    "category_collection.category_id=category.cate_id",
+                    "category_collection.collection_id=collection.collection_id",
+                    $id
+                );
+                if ($res) {
+                    $data = [];
+
+                    foreach ($res as $row) {
+                        $data[] = [
+                            "category" => [
+                                "category_name" => $row['category_name']
+                            ],
+                            "collection" => [
+                                "collection_name" => $row['collection_name']
+                            ]
+                        ];
+                    }
+                    echo json_encode(["message" => "Fetch SuccessFully", "data" => $data, "status" => true]);
+                } else {
+                    echo json_encode(["message" => "Not Fetch", "status" => false]);
+                }
+                break;
+            case '/View':
+                $collectionId = $_GET['collection_id'] ?? null;
+                $categoryId = $_GET['cate_id'] ?? null;
+                if ($collectionId && $categoryId) {
+                    $arr = array("cate_id" => $categoryId, "product.collection_id" => $collectionId);
+                    $res = $this->joins_where(
+                        "product",
+                        "category",
+                        "collection",
+                        "product.category_id=category.cate_id",
+                        "product.collection_id=collection.collection_id",
+                        $arr
+                    );
+                } elseif ($collectionId) {
+                    $collectionId = $_GET['collection_id'] ?? null;
+
+                    if ($collectionId && $categoryId) {
+                        $arr = array("cate_id" => $categoryId, "product.collection_id" => $collectionId);
+                        $res = $this->join_where(
+                            "product",
+                            "collection",
+                            "product.collection_id=collection.collection_id",
+                            $arr
+                        );
+                    }
+                } else {
+                    echo json_encode(["message" => "Collection ID required", "status" => false]);
+                    break;
+                }
+                if ($res) {
+                    $data = [];
+
+                    foreach ($res as $row) {
+                        $data[] =$row;
+                    }
+                    echo json_encode(["message" => "Fetch SuccessFully", "data" => $data, "status" => true]);
+                } else {
+                    echo json_encode(["message" => "Not Fetch", "status" => false]);
+                }
+                break;
             case '/View-Product':
                 $id = $_GET['id'];
                 $where = array("pro_id" => $id);
@@ -118,6 +196,110 @@ class control extends model
                 break;
 
             case "/Add-to-cart":
+                $arr = array(
+                    "pro_id " => $_POST["pro_id"],
+                    "cust_id" => $_POST['cust_id'],
+                    "metal_id" => $_POST["metal_id"],
+                    "diamond_id" => $_POST['diamond_id'],
+
+                    "quantity" => $_POST['quantity'],
+                    "total_amount" => $_POST['total_amount']
+
+                );
+                $insert = $this->insert("addtocart", $arr);
+                if ($insert or die("Insert Query Failed")) {
+                    echo json_encode(array("message" => "Product add in cart", "status" => true));
+                } else {
+                    echo json_encode(array("message" => "Error Occur ", "status" => false));
+                }
+                break;
+
+            case "/CheckOut":
+                $id = array("cust_id" => $_GET['id']);
+                $res = $this->select_where("addtocart", $id);
+                $chk = $res->num_rows;
+                if ($chk) {
+                    $row = $res->fetch_assoc();
+                    echo json_encode(array("data" => $row, "status" => true));
+                } else {
+                    echo json_encode(array("message" => "No Record Found", "status" => false));
+                }
+                break;
+
+            case "/place-orders":
+                $arr = array(
+                    "cart_id  " => $_POST["cart_id"],
+                    "cust_id" => $_POST['cust_id'],
+                    "quantity" => $_POST["quantity"],
+                    "payment_mode" => $_POST['payment_mode'],
+                    "address" => $_POST['address'],
+                    "state" => $_POST['state'],
+                    "city" => $_POST['city'],
+                    "pincode" => $_POST["pincode"],
+                    "delivery_charge" => $_POST['delivery_charge'],
+                    "grand_total" => $_POST['grand_total'],
+                    "delivery_days" => $_POST['delivery_days']
+                );
+                $insert = $this->insert("orders", $arr);
+                if ($insert or die("Insert Query Failed")) {
+                    echo json_encode(array("message" => "Order Placed Successfully", "status" => true));
+                } else {
+                    echo json_encode(array("message" => "Order Not Placed, there will be some error ", "status" => false));
+                }
+                break;
+
+            case '/Order':
+                $where = array("id" => $_GET['id']);
+                $res = $this->joins_where(
+                    "orders",
+                    "customers",
+                    "product",
+                    "orders.cust_id=customers.cust_id",
+                    "orders.pro_id=product.pro_id",
+                    $where
+                );
+                if ($res) {
+                    $data = [];
+
+                    foreach ($res as $row) {
+                        $images = explode(",", $row['product_image']); // images as array
+                        $data[] = [
+                            "product" => [
+
+                                "product_name" => $row['product_name'],
+                                "product_code" => $row['product_code'],
+                                "product_decsp" => $row['product_decsp'],
+                                "product_image" => $images,
+                                "price" => $row['price'],
+                                "gender" => $row['gender'],
+                                "height" => $row['height'],
+                                "width" => $row['width'],
+                                "product_wieght" => $row['product_wieght'],
+                                "of_stones" => $row['of_stones'],
+                                "total_diamond_weight" => $row['total_diamond_weight'],
+
+                            ],
+                            "orders" => [
+                                "payment_mode" => $row['payment_mode'],
+                                "address" => $row['address'],
+                                "state" => $row['state'],
+                                "city" => $row['city'],
+                                "pincode" => $row['pincode'],
+                                "delivery_charge" => $row['delivery_charge'],
+                                "grand_total" => $row['grand_total'],
+                                "delivery_days" => $row['delivery_days'],
+                                "status" => $row['status'],
+                            ],
+                            "customers" => [
+                                "email " => $row['email'],
+                                "mobile_number " => $row['mobile_number'],
+                            ]
+                        ];
+                    }
+                    echo json_encode(["message" => "Fetch Success", "data" => $data, "status" => true]);
+                } else {
+                    echo json_encode(["message" => "Not Fetch Success", "status" => false]);
+                }
                 break;
             //------------------Admin Side------------------------
 
@@ -213,7 +395,7 @@ class control extends model
 
             //---------------------- View All category ------------
 
-            case '/Admin/view_category':
+            case '/Admin/Manage_category':
                 $res = $this->select("category");
                 $count = count($res);
                 if (!empty($res)) {
@@ -666,7 +848,7 @@ class control extends model
                 break;
 
             //--------------------------- ADD-TO-CART CASE'S ---------------------------
-        
+
 
             case '/Admin/Delete_order':
                 $id = $_GET['id'];
@@ -735,7 +917,7 @@ class control extends model
                     echo json_encode(["message" => "Product Size Not Update", "status" => false]);
                 }
                 break;
-        
+
         }
     }
 }
