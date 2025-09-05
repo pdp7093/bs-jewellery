@@ -141,27 +141,27 @@ class control extends model
                 $collectionId = $_GET['collection_id'] ?? null;
                 $categoryId = $_GET['cate_id'] ?? null;
                 if ($collectionId && $categoryId) {
-                    $arr = array("cate_id" => $categoryId, "product.collection_id" => $collectionId);
+                    $arr = [
+                        "product.cate_id" => $categoryId,
+                        "product.collection_id" => $collectionId
+                    ];
                     $res = $this->joins_where(
                         "product",
                         "category",
                         "collection",
-                        "product.category_id=category.cate_id",
+                        "product.cate_id=category.cate_id",
                         "product.collection_id=collection.collection_id",
                         $arr
                     );
                 } elseif ($collectionId) {
-                    $collectionId = $_GET['collection_id'] ?? null;
 
-                    if ($collectionId && $categoryId) {
-                        $arr = array("cate_id" => $categoryId, "product.collection_id" => $collectionId);
-                        $res = $this->join_where(
-                            "product",
-                            "collection",
-                            "product.collection_id=collection.collection_id",
-                            $arr
-                        );
-                    }
+                    $arr = ["product.collection_id" => $collectionId];
+                    $res = $this->join_where(
+                        "product",
+                        "collection",
+                        "product.collection_id=collection.collection_id",
+                        $arr
+                    );
                 } else {
                     echo json_encode(["message" => "Collection ID required", "status" => false]);
                     break;
@@ -170,7 +170,7 @@ class control extends model
                     $data = [];
 
                     foreach ($res as $row) {
-                        $data[] =$row;
+                        $data[] = $row;
                     }
                     echo json_encode(["message" => "Fetch SuccessFully", "data" => $data, "status" => true]);
                 } else {

@@ -118,8 +118,15 @@ class model
     //function for join 
     function join_where($tbl1, $tbl2, $on, $where)
     {
-        $sel = "select * from $tbl1 join $tbl2 on $on where $where";
-        $run = $this->conn->query($sel);
+        $join = "select * from $tbl1 join $tbl2 on $on where 1=1";
+        $col_where = array_keys($where);
+        $value_where = array_values($where);
+        $i = 0;
+        foreach ($where as $w) {
+            $join .= " and $col_where[$i]='$value_where[$i]'";
+            $i++;
+        }
+        $run = $this->conn->query($join);
         while ($fetch = $run->fetch_assoc()) {
             $arr[] = $fetch;
         }
