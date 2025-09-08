@@ -110,7 +110,7 @@ class control extends model
                 break;
 
             case '/collection-category':
-                $id = array("category_collection.collection_id" => $_GET['id']);
+                $id = array("category_collection.collection_id" => $_GET['collection_id']);
                 $res = $this->joins_where(
                     "category_collection",
                     "category",
@@ -215,14 +215,18 @@ class control extends model
                 break;
 
             case "/CheckOut":
-                $id = array("cust_id" => $_GET['id']);
-                $res = $this->select_where("addtocart", $id);
-                $chk = $res->num_rows;
-                if ($chk) {
-                    $row = $res->fetch_assoc();
-                    echo json_encode(array("data" => $row, "status" => true));
+                $joins = [
+                    ['table' => 'product', 'alias' => 'p', 'condition' => 'ac.pro_id = p.pro_id'],
+                    ['table' => 'customers', 'alias' => 'c', 'condition' => 'ac.cust_id = c.cust_id'],
+                    ['table' => 'metals', 'alias' => 'm', 'condition' => 'ac.metal_id = m.id'],
+                    ['table' => 'diamonds', 'alias' => 'd', 'condition' => 'ac.diamond_id = d.diamond_id']
+                ];
+
+                $result = $this->join_more("addtocart", "ac", $joins, "ac.id = 1");
+                if ($result or die("Insert Query Failed")) {
+                    echo json_encode(array("message" => "Order Placed Successfully","data"=>$result, "status" => true));
                 } else {
-                    echo json_encode(array("message" => "No Record Found", "status" => false));
+                    echo json_encode(array("message" => "Order Not Placed, there will be some error ", "status" => false));
                 }
                 break;
 

@@ -174,26 +174,26 @@ class model
     }
 
     //Function for 5 tables 
-    function join_more($tables, $joinConditions, $where)
-    {
-        $mainTable = array_shift($tables);
-        $mainAlias = key($tables);
-        $sql = "SELECT * FROM {$mainTable} {$mainAlias} ";
+  function join_more($mainTable, $mainAlias, $joins = [], $where = "1=1")
+{
+    $sql = "SELECT * FROM {$mainTable} {$mainAlias} ";
 
-        $i = 0;
-        foreach ($joinConditions as $joinTable => $condition) {
-            $alias = array_keys($tables)[$i];
-            $sql .= "JOIN {$joinTable} {$alias} ON {$condition} ";
-            $i++;
-        }
-        $sql .= "WHERE $where ";
-        $run = $this->conn->query($sql);
-
-        while ($fetch = $run->fetch_assoc()) {
-            $arr[] = $fetch;
-        }
-        return $arr;
+    foreach ($joins as $join) {
+        // $join = ['table' => 'products', 'alias' => 'p', 'condition' => 'ac.pro_id = p.id']
+        $sql .= "JOIN {$join['table']} {$join['alias']} ON {$join['condition']} ";
     }
+
+    $sql .= "WHERE $where";
+
+    $run = $this->conn->query($sql);
+
+    $arr = [];
+    while ($fetch = $run->fetch_assoc()) {
+        $arr[] = $fetch;
+    }
+    return $arr;
+}
+
 
     //    //Function for 5 tables 
     // function join_more($tables, $joinConditions, $where)
